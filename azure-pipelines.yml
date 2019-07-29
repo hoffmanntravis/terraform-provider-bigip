@@ -41,7 +41,7 @@ steps:
 
 - script:
     echo 'copying $(Build.SourcesDirectory)/terraform-provider-bigip.exe to $(Build.ArtifactStagingDirectory)'
-    cp '$(Build.SourcesDirectory)/terraform-provider-bigip.exe' '$(Build.ArtifactStagingDirectory)/terraform-provider-bigip.exe'
+    cp '$(Build.SourcesDirectory)/terraform-provider-bigip.exe' '$(Build.ArtifactStagingDirectory)'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'

@@ -39,10 +39,15 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
+- script:
+    echo 'Build.SourcesDirectory is $(Build.SourcesDirectory)'
+    echo 'Build.ArtifactStagingDirectory is $(Build.ArtifactStagingDirectory)'
+    echo 'variables.ArtifactName is ${{variables.ArtifactName}}'
+
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: 'terraform-provider-bigip.exe'
+    contents: '*.exe'
     targetFolder:  '$(Build.ArtifactStagingDirectory)'
 
 

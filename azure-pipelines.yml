@@ -39,25 +39,9 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
-- script: |
-    echo 'Build.SourcesDirectory is $(Build.SourcesDirectory)'
-    echo 'running ls on Build.SourcesDirectory'
-    echo '============================'
-    echo ls $(Build.SourcesDirectory)
-    echo '============================'
-    echo 'running ls on Build.ArtifactStagingDirectory'
-    echo '============================'
-    echo ls $(Build.ArtifactStagingDirectory)
-    echo '============================'
-    echo 'Build.ArtifactStagingDirectory is $(Build.ArtifactStagingDirectory)'
-    echo 'variables.ArtifactName is ${{variables.ArtifactName}}'
-
-- task: CopyFiles@2
-  inputs:
-    sourceFolder: '$(Build.SourcesDirectory)'
-    contents: $(Build.SourcesDirectory)/terraform-provider-bigip.exe
-    targetFolder:  '$(Build.ArtifactStagingDirectory)'
-
+- script:
+    echo 'copying $(Build.SourcesDirectory)/terraform-provider-bigip.exe to $(Build.ArtifactStagingDirectory)'
+    cp '$(Build.SourcesDirectory)/terraform-provider-bigip.exe' '$(Build.ArtifactStagingDirectory)/terraform-provider-bigip.exe'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'

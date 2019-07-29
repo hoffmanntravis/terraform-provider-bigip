@@ -55,7 +55,7 @@ steps:
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '*.exe'
+    contents: '$(Build.SourcesDirectory)/*.exe'
     targetFolder:  '$(Build.ArtifactStagingDirectory)'
 
 

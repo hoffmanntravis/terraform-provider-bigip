@@ -41,13 +41,21 @@ steps:
 
 - script:
     echo 'Build.SourcesDirectory is $(Build.SourcesDirectory)'
+    echo 'running ls on Build.SourcesDirectory'
+    echo '============================'
+    ls $(Build.SourcesDirectory)
+    echo '============================'
+    echo 'running ls on Build.ArtifactStagingDirectory'
+    echo '============================'
+    ls $(Build.ArtifactStagingDirectory)
+    echo '============================'
     echo 'Build.ArtifactStagingDirectory is $(Build.ArtifactStagingDirectory)'
     echo 'variables.ArtifactName is ${{variables.ArtifactName}}'
 
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: '*.exe'
+    contents: .\terraform-provider-bigip.exe
     targetFolder:  '$(Build.ArtifactStagingDirectory)'
 
 

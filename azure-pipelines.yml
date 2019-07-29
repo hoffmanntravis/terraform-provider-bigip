@@ -39,8 +39,15 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: '$(modulePath)/terraform-provider-bigip.exe'
+    targetFolder:  '$(Build.ArtifactStagingDirectory)'
+
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'
   inputs:
-    pathtoPublish: '$(modulePath)/terraform-provider-bigip.exe'
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: '${{variables.ArtifactName}}'

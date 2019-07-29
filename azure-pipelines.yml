@@ -55,7 +55,7 @@ steps:
 - task: CopyFiles@2
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)'
-    contents: .\terraform-provider-bigip.exe
+    contents: terraform-provider-bigip.exe
     targetFolder:  '$(Build.ArtifactStagingDirectory)'
 
 

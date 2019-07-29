@@ -42,5 +42,5 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    pathtoPublish: '$(System.ArtifactsDirectory)'
     artifactName: '${{variables.ArtifactName}}'

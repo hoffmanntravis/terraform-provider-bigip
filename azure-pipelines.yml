@@ -43,8 +43,8 @@ steps:
 - script: ls -al $(modulePath)
   displayName: 'List modulePath'
 - script: |
-    echo 'copying $(modulePath)/terraform-provider-bigip.exe to $(Build.ArtifactStagingDirectory)'
-    cp '$(modulePath)/terraform-provider-bigip.exe' '$(Build.ArtifactStagingDirectory)'
+    echo 'copying $(modulePath)/terraform-provider-bigip to $(Build.ArtifactStagingDirectory)'
+    cp '$(modulePath)/terraform-provider-bigip' '$(Build.ArtifactStagingDirectory)'
   displayName: 'Copie EXE into staging path for publishing'
 
 - script: ls -al $(System.ArtifactStagingDirectory)

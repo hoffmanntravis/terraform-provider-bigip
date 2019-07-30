@@ -47,10 +47,6 @@ steps:
     cp '$(modulePath)/terraform-provider-bigip' '$(Build.ArtifactStagingDirectory)'
   displayName: 'Copie EXE into staging path for publishing'
 
-- script: ls -al $(System.ArtifactStagingDirectory)
-  displayName: 'List ArtifactStagingDirectory path'
-- script: ls -al $(modulePath)
-  displayName: 'List modulePath'
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'
   inputs:

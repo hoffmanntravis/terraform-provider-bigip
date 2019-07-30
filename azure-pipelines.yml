@@ -39,11 +39,13 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'Get dependencies, then build'
 
+- script: ls -al $(System.ArtifactStagingDirectory)
+- script: ls -al $(Build.SourcesDirectory)
 - script: |
     echo 'copying $(Build.SourcesDirectory)/terraform-provider-bigip.exe to $(Build.ArtifactStagingDirectory)'
     cp '$(Build.SourcesDirectory)/terraform-provider-bigip.exe' '$(Build.ArtifactStagingDirectory)'
 
-- script: ls -al $(System.DefaultWorkingDirectory)
+- script: ls -al $(System.ArtifactStagingDirectory)
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Build Artifacts to Azure Pipelines'

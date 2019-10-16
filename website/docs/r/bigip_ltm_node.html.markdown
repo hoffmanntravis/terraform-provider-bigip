@@ -3,7 +3,7 @@ layout: "bigip"
 page_title: "BIG-IP: bigip_ltm_node"
 sidebar_current: "docs-bigip-resource-node-x"
 description: |-
-    Provides details about bigip_ltm_node resource
+   Provides details about bigip_ltm_node resource
 ---
 
 # bigip\_ltm\_node
@@ -17,15 +17,15 @@ For resources should be named with their "full path". The full path is the combi
 
 
 ```hcl
-
 resource "bigip_ltm_node" "node" {
-  name = "/Common/terraform_node1"
-  address = "10.10.10.10"
+  name             = "/Common/terraform_node1"
+  address          = "192.168.30.1"
   connection_limit = "0"
-  dynamic_ratio = "1"
-  monitor = "default"
-  rate_limit = "disabled"
-  fqdn = { address_family = "ipv4", interval = "3000" }
+  dynamic_ratio    = "1"
+  monitor          = "/Common/icmp"
+  description      = "Test-Node"
+  rate_limit       = "disabled"
+  fqdn             = { address_family = "ipv4", interval = "3000" }
 }
 ```      
 
@@ -34,6 +34,8 @@ resource "bigip_ltm_node" "node" {
 * `name` - (Required) Name of the node
 
 * `address` - (Required) IP or hostname of the node
+
+* `description` - (Optional) User-defined description give ltm_node
 
 * `connection_limit` - (Optional) Specifies the maximum number of connections allowed for the node or node address.
 

@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -15,11 +21,12 @@ var TEST_FQDN_NODE_NAME = fmt.Sprintf("/%s/test-fqdn-node", TEST_PARTITION)
 var TEST_NODE_RESOURCE = `
 resource "bigip_ltm_node" "test-node" {
 	name = "` + TEST_NODE_NAME + `"
-	address = "10.10.10.10"
+	address = "192.168.30.1"
 	connection_limit = "0"
 	dynamic_ratio = "1"
-	monitor = "default"
+	monitor = "/Common/icmp"
 	rate_limit = "disabled"
+	state = "user-up"
 }
 `
 var TEST_FQDN_NODE_RESOURCE = `
@@ -31,6 +38,7 @@ resource "bigip_ltm_node" "test-fqdn-node" {
 	monitor = "default"
 	rate_limit = "disabled"
 	fqdn { interval = "3000"}
+	state = "user-up"
 }
 `
 
@@ -47,12 +55,13 @@ func TestAccBigipLtmNode_create(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testCheckNodeExists(TEST_NODE_NAME, true),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "name", TEST_NODE_NAME),
-					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "address", "10.10.10.10"),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "address", "192.168.30.1"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "connection_limit", "0"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "dynamic_ratio", "1"),
-					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "monitor", "default"),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "description", ""),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "monitor", "/Common/icmp"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "rate_limit", "disabled"),
-					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "state", "unchecked"),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-node", "state", "user-up"),
 				),
 			},
 		},
@@ -73,9 +82,10 @@ func TestAccBigipLtmNode_create(t *testing.T) {
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "address", "f5.com"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "connection_limit", "0"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "dynamic_ratio", "1"),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "description", ""),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "monitor", "default"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "rate_limit", "disabled"),
-					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "state", "fqdn-checking"),
+					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "state", "user-up"),
 					resource.TestCheckResourceAttr("bigip_ltm_node.test-fqdn-node", "fqdn.0.interval", "3000"),
 				),
 			},

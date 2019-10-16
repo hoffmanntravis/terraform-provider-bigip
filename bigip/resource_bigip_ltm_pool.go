@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -49,6 +55,10 @@ func resourceBigipLtmPool() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "Allow SNAT",
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 
 			"load_balancing_mode": {
@@ -137,7 +147,7 @@ func resourceBigipLtmPoolRead(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("reselect_tries", pool.ReselectTries); err != nil {
 		return fmt.Errorf("[DEBUG] ERror saving ReselectTries to state for Pool  (%s): %s", d.Id(), err)
 	}
-
+	d.Set("description", pool.Description)
 	monitors := strings.Split(strings.TrimSpace(pool.Monitor), " and ")
 	if err := d.Set("monitors", makeStringSet(&monitors)); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving Monitors to state for Pool  (%s): %s", d.Id(), err)
@@ -182,12 +192,12 @@ func resourceBigipLtmPoolUpdate(d *schema.ResourceData, meta interface{}) error 
 		AllowNAT:          d.Get("allow_nat").(string),
 		AllowSNAT:         d.Get("allow_snat").(string),
 		LoadBalancingMode: d.Get("load_balancing_mode").(string),
+		Description:       d.Get("description").(string),
 		SlowRampTime:      d.Get("slow_ramp_time").(int),
 		ServiceDownAction: d.Get("service_down_action").(string),
 		ReselectTries:     d.Get("reselect_tries").(int),
 		Monitor:           strings.Join(monitors, " and "),
 	}
-
 	err := client.ModifyPool(name, pool)
 	if err != nil {
 		log.Printf("[ERROR] Unable to Modify Pool   (%s) (%v) ", name, err)

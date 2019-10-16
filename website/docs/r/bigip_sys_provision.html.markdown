@@ -3,7 +3,7 @@ layout: "bigip"
 page_title: "BIG-IP: bigip_sys_provision"
 sidebar_current: "docs-bigip-resource-provision-x"
 description: |-
-    Provides details about bigip  provision resource for BIG-IP
+   Provides details about bigip  provision resource for BIG-IP
 ---
 
 # bigip\_sys\_provision
@@ -14,17 +14,17 @@ description: |-
 
 ```hcl
 provider "bigip" {
-  address = "10.192.74.73"
-  username = "admin"
-  password = "admin"
+  address  = "xxx.xxx.xxx.xxx"
+  username = "xxxxx"
+  password = "xxxxx"
 }
 
 resource "bigip_sys_provision" "provision-ilx" {
-  name = "/Common/ilx"
-  fullPath  = "ilx"
-  cpuRatio = 0
-  diskRatio = 0
-  level = "nominal"
+  name        = "/Common/ilx"
+  fullPath    = "ilx"
+  cpuRatio    = 0
+  diskRatio   = 0
+  level       = "nominal"
   memoryRatio = 0
 }
 ```

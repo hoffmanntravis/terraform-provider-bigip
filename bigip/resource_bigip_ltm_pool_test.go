@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -28,6 +34,7 @@ resource "bigip_ltm_pool" "test-pool" {
 	monitors = ["/Common/http"]
 	allow_nat = "yes"
 	allow_snat = "yes"
+	description = "Test-Pool-Sample"
 	load_balancing_mode = "round-robin"
 	slow_ramp_time = "5"
 	service_down_action = "reset"
@@ -56,6 +63,7 @@ func TestAccBigipLtmPool_create(t *testing.T) {
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "name", TEST_POOL_NAME),
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "allow_nat", "yes"),
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "allow_snat", "yes"),
+					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "description", "Test-Pool-Sample"),
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "load_balancing_mode", "round-robin"),
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "slow_ramp_time", "5"),
 					resource.TestCheckResourceAttr("bigip_ltm_pool.test-pool", "service_down_action", "reset"),

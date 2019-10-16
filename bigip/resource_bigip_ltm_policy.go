@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -43,14 +49,14 @@ func resourceBigipLtmPolicy() *schema.Resource {
 				Type:     schema.TypeSet,
 				Set:      schema.HashString,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Required: true,
+				Optional: true,
 			},
 
 			"requires": {
 				Type:     schema.TypeSet,
 				Set:      schema.HashString,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Required: true,
+				Optional: true,
 			},
 
 			"strategy": {
@@ -62,7 +68,7 @@ func resourceBigipLtmPolicy() *schema.Resource {
 
 			"rule": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
@@ -1068,6 +1074,9 @@ func resourceBigipLtmPolicyCreate(d *schema.ResourceData, meta interface{}) erro
 		return err
 	}
 	published_copy := d.Get("published_copy").(string)
+	if published_copy == "" {
+		published_copy = "Drafts/" + name
+	}
 	t := client.PublishPolicy(name, published_copy)
 	if t != nil {
 		return t

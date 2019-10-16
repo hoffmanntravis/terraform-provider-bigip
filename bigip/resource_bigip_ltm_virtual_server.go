@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -40,6 +46,17 @@ func resourceBigipLtmVirtualServer() *schema.Resource {
 				Optional:    true,
 				Default:     "0.0.0.0/0",
 				Description: "Source IP and mask for the virtual server",
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"state": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Default:      "enabled",
+				ValidateFunc: validateEnabledDisabled,
+				Description:  "Specifies whether the virtual server and its resources are available for load balancing. The default is Enabled",
 			},
 
 			"destination": {
@@ -255,6 +272,12 @@ func resourceBigipLtmVirtualServerRead(d *schema.ResourceData, meta interface{})
 
 	d.Set("irules", makeStringList(&vs.Rules))
 	d.Set("ip_protocol", vs.IPProtocol)
+	d.Set("description", vs.Description)
+	if vs.Enabled {
+		d.Set("state", "enabled")
+	} else {
+		d.Set("state", "disabled")
+	}
 	d.Set("source_address_translation", vs.SourceAddressTranslation.Type)
 	if err := d.Set("snatpool", vs.SourceAddressTranslation.Pool); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving Snatpool to state for Virtual Server  (%s): %s", d.Id(), err)
@@ -378,6 +401,7 @@ func resourceBigipLtmVirtualServerUpdate(d *schema.ResourceData, meta interface{
 		Source:                     d.Get("source").(string),
 		Pool:                       d.Get("pool").(string),
 		Mask:                       d.Get("mask").(string),
+		Description:                d.Get("description").(string),
 		Rules:                      rules,
 		PersistenceProfiles:        persistenceProfiles,
 		Profiles:                   profiles,
@@ -395,7 +419,9 @@ func resourceBigipLtmVirtualServerUpdate(d *schema.ResourceData, meta interface{
 		TranslateAddress: d.Get("translate_address").(string),
 		VlansEnabled:     d.Get("vlans_enabled").(bool),
 	}
-
+	if d.Get("state").(string) == "disabled" {
+		vs.Disabled = true
+	}
 	err := client.ModifyVirtualServer(name, vs)
 	if err != nil {
 		return err

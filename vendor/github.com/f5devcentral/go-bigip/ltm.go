@@ -1,3 +1,26 @@
+/*
+Original work Copyright © 2015 Scott Ware
+Modifications Copyright 2019 F5 Networks Inc
+Licensed under the Apache License, Version 2.0 (the "License");
+You may not use this file except in compliance with the License.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+ */
+/*
+Original work Copyright © 2015 Scott Ware 
+Licensed under the Apache License, Version 2.0 (the "License");
+You may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package bigip
 
 import (
@@ -94,7 +117,7 @@ type ClientSSLProfile struct {
 	CertLifespan                    int      `json:"certLifespan,omitempty"`
 	CertLookupByIpaddrPort          string   `json:"certLookupByIpaddrPort,omitempty"`
 	Chain                           string   `json:"chain,omitempty"`
-	Ciphers                         string   `json:"Ciphers,omitempty"`
+	Ciphers                         string   `json:"ciphers,omitempty"`
 	ClientCertCa                    string   `json:"clientCertCa,omitempty"`
 	CrlFile                         string   `json:"crlFile,omitempty"`
 	DefaultsFrom                    string   `json:"defaultsFrom,omitempty"`
@@ -141,6 +164,7 @@ type Node struct {
 	Name            string `json:"name,omitempty"`
 	Partition       string `json:"partition,omitempty"`
 	FullPath        string `json:"fullPath,omitempty"`
+	Description     string `json:"description,omitempty"`
 	Generation      int    `json:"generation,omitempty"`
 	Address         string `json:"address,omitempty"`
 	ConnectionLimit int    `json:"connectionLimit,omitempty"`
@@ -242,6 +266,7 @@ type Pool struct {
 	Name                   string `json:"name,omitempty"`
 	Partition              string `json:"partition,omitempty"`
 	FullPath               string `json:"fullPath,omitempty"`
+	Description            string `json:"description,omitempty"`
 	Generation             int    `json:"generation,omitempty"`
 	AllowNAT               string `json:"allowNat,omitempty"`
 	AllowSNAT              string `json:"allowSnat,omitempty"`
@@ -304,6 +329,7 @@ type poolDTO struct {
 	Name                   string `json:"name,omitempty"`
 	Partition              string `json:"partition,omitempty"`
 	FullPath               string `json:"fullPath,omitempty"`
+	Description            string `json:"description,omitempty"`
 	Generation             int    `json:"generation,omitempty"`
 	AllowNAT               string `json:"allowNat,omitempty"`
 	AllowSNAT              string `json:"allowSnat,omitempty"`
@@ -491,12 +517,14 @@ type VirtualServer struct {
 	Partition                  string `json:"partition,omitempty"`
 	FullPath                   string `json:"fullPath,omitempty"`
 	Generation                 int    `json:"generation,omitempty"`
+	Description                string `json:"description,omitempty"`
 	AddressStatus              string `json:"addressStatus,omitempty"`
 	AutoLastHop                string `json:"autoLastHop,omitempty"`
 	CMPEnabled                 string `json:"cmpEnabled,omitempty"`
 	ConnectionLimit            int    `json:"connectionLimit,omitempty"`
 	Destination                string `json:"destination,omitempty"`
 	Enabled                    bool   `json:"enabled,omitempty"`
+	Disabled                   bool   `json:"disabled,omitempty"`
 	GTMScore                   int    `json:"gtmScore,omitempty"`
 	FallbackPersistenceProfile string `json:"fallbackPersistence,omitempty"`
 	IPProtocol                 string `json:"ipProtocol,omitempty"`
@@ -1862,7 +1890,7 @@ func (b *BigIP) DeleteServerSSLProfile(name string) error {
 // ModifyServerSSLProfile allows you to change any attribute of a sever-ssl profile.
 // Fields that can be modified are referenced in the VirtualServer struct.
 func (b *BigIP) ModifyServerSSLProfile(name string, config *ServerSSLProfile) error {
-	return b.put(config, uriLtm, uriProfile, uriServerSSL, name)
+	return b.patch(config, uriLtm, uriProfile, uriServerSSL, name)
 }
 
 // ClientSSLProfiles returns a list of client-ssl profiles.
@@ -1913,7 +1941,7 @@ func (b *BigIP) DeleteClientSSLProfile(name string) error {
 // ModifyClientSSLProfile allows you to change any attribute of a client-ssl profile.
 // Fields that can be modified are referenced in the ClientSSLProfile struct.
 func (b *BigIP) ModifyClientSSLProfile(name string, config *ClientSSLProfile) error {
-	return b.put(config, uriLtm, uriProfile, uriClientSSL, name)
+	return b.patch(config, uriLtm, uriProfile, uriClientSSL, name)
 }
 
 // Nodes returns a list of nodes.
@@ -1933,7 +1961,7 @@ func (b *BigIP) AddNode(config *Node) error {
 }
 
 // CreateNode adds a new IP based node to the BIG-IP system.
-func (b *BigIP) CreateNode(name, address, rate_limit string, connection_limit, dynamic_ratio int, monitor, state string) error {
+func (b *BigIP) CreateNode(name, address, rate_limit string, connection_limit, dynamic_ratio int, monitor, state ,description string) error {
 	config := &Node{
 		Name:            name,
 		Address:         address,
@@ -1942,13 +1970,14 @@ func (b *BigIP) CreateNode(name, address, rate_limit string, connection_limit, d
 		DynamicRatio:    dynamic_ratio,
 		Monitor:         monitor,
 		State:           state,
+		Description:     description,
 	}
 
 	return b.post(config, uriLtm, uriNode)
 }
 
 // CreateFQDNNode adds a new FQDN based node to the BIG-IP system.
-func (b *BigIP) CreateFQDNNode(name, address, rate_limit string, connection_limit, dynamic_ratio int, monitor, state, interval, address_family, autopopulate string, downinterval int) error {
+func (b *BigIP) CreateFQDNNode(name, address, rate_limit string, connection_limit, dynamic_ratio int, monitor, state, description, interval, address_family, autopopulate string, downinterval int) error {
 	config := &Node{
 		Name:            name,
 		RateLimit:       rate_limit,
@@ -1956,6 +1985,7 @@ func (b *BigIP) CreateFQDNNode(name, address, rate_limit string, connection_limi
 		DynamicRatio:    dynamic_ratio,
 		Monitor:         monitor,
 		State:           state,
+		Description:     description,
 	}
 	config.FQDN.Name = address
 	config.FQDN.Interval = interval
@@ -2358,7 +2388,7 @@ func (b *BigIP) DeleteVirtualAddress(vaddr string) error {
 // Monitors returns a list of all HTTP, HTTPS, Gateway ICMP, ICMP, and TCP monitors.
 func (b *BigIP) Monitors() ([]Monitor, error) {
 	var monitors []Monitor
-	monitorUris := []string{"http", "https", "icmp", "gateway-icmp", "tcp", "tcp-half-open", "ftp"}
+	monitorUris := []string{"http", "https", "icmp", "gateway-icmp", "tcp", "tcp-half-open", "ftp", "udp", "postgresql"}
 
 	for _, name := range monitorUris {
 		var m Monitors

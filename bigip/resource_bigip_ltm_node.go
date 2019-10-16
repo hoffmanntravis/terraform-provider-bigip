@@ -1,3 +1,9 @@
+/*
+Original work from https://github.com/DealerDotCom/terraform-provider-bigip
+Modifications Copyright 2019 F5 Networks Inc.
+This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+If a copy of the MPL was not distributed with this file,You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
 package bigip
 
 import (
@@ -57,14 +63,17 @@ func resourceBigipLtmNode() *schema.Resource {
 			"monitor": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				Default:     "/Common/icmp",
 				Description: "Specifies the name of the monitor or monitor rule that you want to associate with the node.",
-				Computed:    true,
+			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"state": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Marks the node up or down. The default value is user-up.",
-				Computed:    true,
 			},
 			"fqdn": {
 				Type:     schema.TypeList,
@@ -117,6 +126,7 @@ func resourceBigipLtmNodeCreate(d *schema.ResourceData, meta interface{}) error 
 	dynamic_ratio := d.Get("dynamic_ratio").(int)
 	monitor := d.Get("monitor").(string)
 	state := d.Get("state").(string)
+	description := d.Get("description").(string)
 
 	r, _ := regexp.Compile("^((?:[0-9]{1,3}.){3}[0-9]{1,3})|(.*:.*)$")
 
@@ -131,6 +141,7 @@ func resourceBigipLtmNodeCreate(d *schema.ResourceData, meta interface{}) error 
 			dynamic_ratio,
 			monitor,
 			state,
+			description,
 		)
 	} else {
 		interval := d.Get("fqdn.0.interval").(string)
@@ -146,6 +157,7 @@ func resourceBigipLtmNodeCreate(d *schema.ResourceData, meta interface{}) error 
 			dynamic_ratio,
 			monitor,
 			state,
+			description,
 			interval,
 			address_family,
 			autopopulate,
@@ -193,15 +205,16 @@ func resourceBigipLtmNodeRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	d.Set("name", name)
-	if err := d.Set("monitor", node.Monitor); err != nil {
-		return fmt.Errorf("[DEBUG] Error saving Monitor to state for Node (%s): %s", d.Id(), err)
-	}
+	//if err := d.Set("monitor", node.Monitor); err != nil {
+	//	return fmt.Errorf("[DEBUG] Error saving Monitor to state for Node (%s): %s", d.Id(), err)
+	//}
 	if err := d.Set("rate_limit", node.RateLimit); err != nil {
 		return fmt.Errorf("[DEBUG] Error saving Monitor to state for Node (%s): %s", d.Id(), err)
 	}
 
-	d.Set("state", node.State)
+	//d.Set("state", node.State)
 	d.Set("connection_limit", node.ConnectionLimit)
+	d.Set("description", node.Description)
 	d.Set("dynamic_ratio", node.DynamicRatio)
 	d.Set("fqdn.0.interval", node.FQDN.Interval)
 	d.Set("fqdn.0.downinterval", node.FQDN.DownInterval)
@@ -246,6 +259,7 @@ func resourceBigipLtmNodeUpdate(d *schema.ResourceData, meta interface{}) error 
 			Monitor:         d.Get("monitor").(string),
 			RateLimit:       d.Get("rate_limit").(string),
 			State:           d.Get("state").(string),
+			Description:     d.Get("description").(string),
 		}
 	} else {
 		node = &bigip.Node{
@@ -254,12 +268,13 @@ func resourceBigipLtmNodeUpdate(d *schema.ResourceData, meta interface{}) error 
 			Monitor:         d.Get("monitor").(string),
 			RateLimit:       d.Get("rate_limit").(string),
 			State:           d.Get("state").(string),
+			Description:     d.Get("description").(string),
 		}
+	}
 
-		err := client.ModifyNode(name, node)
-		if err != nil {
-			return fmt.Errorf("Error modifying node %s: %v", name, err)
-		}
+	err := client.ModifyNode(name, node)
+	if err != nil {
+		return fmt.Errorf("Error modifying node %s: %v", name, err)
 	}
 	return resourceBigipLtmNodeRead(d, meta)
 }
